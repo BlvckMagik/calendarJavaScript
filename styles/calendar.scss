@@ -1,1 +1,36 @@
-// стили сетки календаря и заголовка календаря с днями недели
+@import 'variables.scss';
+.calendar {
+  overflow-y: scroll;
+
+  &__header {
+  }
+
+  &__body {
+  }
+
+  &__week-container {
+    display: flex;
+  }
+
+  &__week {
+    display: flex;
+    width: 1120px;
+    border-top: 1px solid $border-grey;
+  }
+
+  &__day {
+    width: 160px;
+  }
+
+  &__time-slot {
+    height: 60px;
+    border-bottom: 1px solid $border-grey;
+    border-right: 1px solid $border-grey;
+  }
+}
+
+// 160px
+
+.calendar::-webkit-scrollbar {
+  width: 0;
+}
