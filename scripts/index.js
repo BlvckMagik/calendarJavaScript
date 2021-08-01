@@ -1,3 +1,4 @@
+/* eslint-disable import/extensions */
 import { renderTimescale } from './calendar/timescale.js';
 import { renderWeek } from './calendar/calendar.js';
 import { renderHeader } from './calendar/header.js';

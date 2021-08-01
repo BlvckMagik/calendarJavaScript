@@ -1,11 +1,14 @@
 @import 'variables.scss';
 .calendar {
-  overflow-y: scroll;
-
   &__header {
+    display: flex;
+    margin-left: 70px;
   }
 
   &__body {
+    overflow-y: scroll;
+    height: 78.5vh;
+    padding-top: 5px;
   }
 
   &__week-container {
@@ -26,11 +29,29 @@
     height: 60px;
     border-bottom: 1px solid $border-grey;
     border-right: 1px solid $border-grey;
+    position: relative;
+    &:last-child {
+      border-bottom: none;
+    }
   }
 }
 
-// 160px
+.day-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 100px;
 
-.calendar::-webkit-scrollbar {
+  &__day-name {
+    margin-bottom: 10px;
+  }
+  &__day-number {
+    font-size: 24px;
+  }
+}
+
+.calendar__body::-webkit-scrollbar {
   width: 0;
 }

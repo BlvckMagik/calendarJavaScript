@@ -29,6 +29,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  max-height: 100vh;
 }
 .modal__content {
   background: #fff;
@@ -72,6 +73,7 @@
   border-radius: 5px;
   width: 80px;
 }
+
 .fa-plus {
   margin-right: 5px;
 }
@@ -82,11 +84,13 @@
 }
 
 .calendar__header {
-  margin-bottom: 30px;
+  display: flex;
+  margin-left: 70px;
 }
-
-.calendar {
+.calendar__body {
   overflow-y: scroll;
+  height: 78.5vh;
+  padding-top: 5px;
 }
 .calendar__week-container {
   display: flex;
@@ -103,9 +107,28 @@
   height: 60px;
   border-bottom: 1px solid #b4b4b4;
   border-right: 1px solid #b4b4b4;
+  position: relative;
+}
+.calendar__time-slot:last-child {
+  border-bottom: none;
 }
 
-.calendar::-webkit-scrollbar {
+.day-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 100px;
+}
+.day-label__day-name {
+  margin-bottom: 10px;
+}
+.day-label__day-number {
+  font-size: 24px;
+}
+
+.calendar__body::-webkit-scrollbar {
   width: 0;
 }
 
@@ -129,6 +152,22 @@
   padding: 4px;
   top: -12px;
   background-color: white;
+}
+
+.event {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 4px 4px 10px;
+  width: 130px;
+  left: 7px;
+  z-index: 2;
+  background-color: #5733d8;
+  color: aliceblue;
+  border-radius: 5px;
+}
+.event__title {
+  margin-bottom: 10px;
 }
 
 * {
