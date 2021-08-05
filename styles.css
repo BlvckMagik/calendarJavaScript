@@ -132,6 +132,13 @@
   width: 0;
 }
 
+.redline {
+  position: absolute;
+  width: 160px;
+  height: 2px;
+  background-color: red;
+}
+
 .calendar__time-scale {
   display: flex;
   flex-direction: column;

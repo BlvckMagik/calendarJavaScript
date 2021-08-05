@@ -1,5 +1,6 @@
 /* eslint-disable import/extensions */
 import { renderTimescale } from './calendar/timescale.js';
+import { renderRedline } from './calendar/redline.js';
 import { renderWeek } from './calendar/calendar.js';
 import { renderHeader } from './calendar/header.js';
 import { initNavigation } from './header/navigation.js';
@@ -15,4 +16,5 @@ document.addEventListener('DOMContentLoaded', () => {
   renderHeader();
   initNavigation();
   initEventForm();
+  renderRedline();
 });

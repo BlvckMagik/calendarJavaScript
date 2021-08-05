@@ -1,5 +1,6 @@
 /* eslint-disable import/extensions */
 import { getItem, setItem } from '../common/storage.js';
+import { renderRedline } from '../calendar/redline.js';
 import { renderWeek } from '../calendar/calendar.js';
 import { renderHeader } from '../calendar/header.js';
 import shmoment from '../common/shmoment.js';
@@ -46,6 +47,7 @@ const onChangeWeek = event => {
   renderHeader();
   renderWeek();
   renderCurrentMonth();
+  renderRedline();
 };
 
 export const initNavigation = () => {
