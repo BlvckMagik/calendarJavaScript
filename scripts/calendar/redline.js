@@ -15,8 +15,8 @@ export const renderRedline = () => {
   // вставить createRedlineEl() в необходимый день и час
 
   if (
-    // todayDate.getMonth() !== getItem('displayedWeekStart').getMonth() ||
-    // todayDate.getFullYear() !== getItem('displayedWeekStart').getFullYear()
+    todayDate.getMonth() !== getItem('displayedWeekStart').getMonth() ||
+    todayDate.getFullYear() !== getItem('displayedWeekStart').getFullYear()
   ) {
     return null;
   }

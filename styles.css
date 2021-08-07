@@ -134,9 +134,10 @@
 
 .redline {
   position: absolute;
-  width: 160px;
+  width: 161px;
   height: 2px;
   background-color: red;
+  left: -1px;
 }
 
 .calendar__time-scale {

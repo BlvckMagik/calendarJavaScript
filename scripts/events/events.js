@@ -3,9 +3,18 @@
 import { getItem, setItem } from '../common/storage.js';
 import shmoment from '../common/shmoment.js';
 import { openPopup, closePopup } from '../common/popup.js';
+import { renderWeek } from '../calendar/calendar.js';
+import { getDateTime } from '../common/time.utils.js';
 
 const weekElem = document.querySelector('.calendar__week');
 const deleteEventBtn = document.querySelector('.delete-event-btn');
+const confirmEventBtn = document.querySelector('.confirm-event-btn');
+const startTimeEl = document.querySelector('.popup-event-form__start-time');
+const endTimeEl = document.querySelector('.popup-event-form__end-time');
+const titleEl = document.querySelector('.popup-event-form__field');
+const descriptionEl = document.querySelector('.popup-event-form__description');
+const MS_TO_MIN = 1000 * 60;
+const calendarWeek = document.querySelector('.calendar__week');
 
 function handleEventClick(event) {
   // если произошел клик по событию, то нужно паказать попап с кнопкой удаления
@@ -20,22 +29,23 @@ function handleEventClick(event) {
 
   const y = event.pageY;
   const x = event.pageX;
-  openPopup(x, y);
 
-  if (
-    event.target.classList.contains('event__title') ||
-    event.target.classList.contains('event__time')
-  ) {
-    setItem('eventIdToDelete', event.target.closest('.event').dataset.id);
-  } else {
-    setItem('eventIdToDelete', event.target.dataset.id);
-  }
+  openPopup(x, y);
+  setItem('eventIdToDelete', event.target.closest('.event').dataset.id);
+  const eventInArr = getItem('events').find(
+    el => el.id === +event.target.closest('.event').dataset.id
+  );
+
+  startTimeEl.value = `${eventInArr.startTime}`;
+  endTimeEl.value = `${eventInArr.endTime}`;
+  titleEl.value = `${eventInArr.title}`;
+  descriptionEl.value = `${eventInArr.description}`;
 }
 
 function removeEventsFromCalendar() {
   // ф-ция для удаления всех событий с календаря
-
-  setItem('events', []);
+  calendarWeek.innerHTML = '';
+  renderWeek();
 }
 
 const createEventElement = event => {
@@ -52,7 +62,7 @@ const createEventElement = event => {
   eventBlock.setAttribute(
     'style',
     `top: ${event.start.getMinutes()}px; height: ${
-      (event.end - event.start) / 1000 / 60
+      (event.end - event.start) / MS_TO_MIN
     }px`
   );
 
@@ -70,7 +80,6 @@ export const renderEvents = () => {
 
   const events = getItem('events');
   const weekStart = getItem('displayedWeekStart');
-
   const weekEventsList = events.filter(
     eventEl =>
       eventEl.start.getTime() > weekStart.getTime() &&
@@ -107,6 +116,35 @@ function onDeleteEvent() {
   closePopup();
   renderEvents();
 }
+
+const onChangeEvent = () => {
+  const eventInArr = getItem('events').find(
+    el => el.id === +getItem('eventIdToDelete')
+  );
+  const eventDate = eventInArr.start.toDateString();
+
+  eventInArr.startTime = startTimeEl.value;
+  eventInArr.endTime = endTimeEl.value;
+  eventInArr.title = titleEl.value;
+  eventInArr.description = descriptionEl.value;
+  eventInArr.start = getDateTime(eventDate, eventInArr.startTime);
+  eventInArr.end = getDateTime(eventDate, eventInArr.endTime);
+
+  const newEventsList = getItem('events').filter(
+    ({ id }) => +id !== +getItem('eventIdToDelete')
+  );
+
+  document.querySelector(
+    `.event[data-id = '${getItem('eventIdToDelete')}']`
+  ).parentElement.innerHTML = '';
+
+  newEventsList.push(eventInArr);
+  setItem('events', newEventsList);
+  renderEvents();
+  closePopup();
+};
+
+confirmEventBtn.addEventListener('click', onChangeEvent);
 
 deleteEventBtn.addEventListener('click', onDeleteEvent);
 

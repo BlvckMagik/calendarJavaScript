@@ -33,6 +33,7 @@ function onCreateEvent(event) {
 
   event.preventDefault();
   const eventObj = Object.fromEntries(new FormData(eventFormElem));
+  console.log(eventObj);
   getItem('events').push({
     id: Math.random(),
     title: eventObj.title,

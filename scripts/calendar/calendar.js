@@ -12,10 +12,9 @@ export const generateDay = () => {
 
   let innerString = '';
   const timeArr = createNumbersArray(0, 23);
-  timeArr.forEach(
-    hour =>
-      (innerString += `<div class="calendar__time-slot" data-time="${hour}"></div>`)
-  );
+  timeArr.forEach(hour => {
+    innerString += `<div class="calendar__time-slot" data-time="${hour}"></div>`;
+  });
   return innerString;
 };
 
