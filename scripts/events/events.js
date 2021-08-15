@@ -15,6 +15,8 @@ const titleEl = document.querySelector('.popup-event-form__field');
 const descriptionEl = document.querySelector('.popup-event-form__description');
 const MS_TO_MIN = 1000 * 60;
 const calendarWeek = document.querySelector('.calendar__week');
+const changeEventForm = document.querySelector('.popup-event-form');
+const popupColorInp = document.querySelector('.popup__color-inp');
 
 function handleEventClick(event) {
   // если произошел клик по событию, то нужно паказать попап с кнопкой удаления
@@ -40,6 +42,7 @@ function handleEventClick(event) {
   endTimeEl.value = `${eventInArr.endTime}`;
   titleEl.value = `${eventInArr.title}`;
   descriptionEl.value = `${eventInArr.description}`;
+  popupColorInp.value = `${eventInArr.color}`;
 }
 
 function removeEventsFromCalendar() {
@@ -61,9 +64,9 @@ const createEventElement = event => {
   <span class="event__time">${event.startTime} - ${event.endTime}</span>`;
   eventBlock.setAttribute(
     'style',
-    `top: ${event.start.getMinutes()}px; height: ${
-      (event.end - event.start) / MS_TO_MIN
-    }px`
+    `top: ${new Date(event.start).getMinutes()}px; height: ${
+      (new Date(event.end) - new Date(event.start)) / MS_TO_MIN
+    }px; background-color: ${event.color}`
   );
 
   return eventBlock;
@@ -78,20 +81,24 @@ export const renderEvents = () => {
   // каждый день и временная ячейка должно содержать дата атрибуты, по которым можно будет найти нужную временную ячейку для события
   // не забудьте удалить с календаря старые события перед добавлением новых
 
-  const events = getItem('events');
+  const events = getItem('events') || [];
   const weekStart = getItem('displayedWeekStart');
   const weekEventsList = events.filter(
     eventEl =>
-      eventEl.start.getTime() > weekStart.getTime() &&
-      eventEl.start.getTime() <
+      new Date(eventEl.start).getTime() > new Date(weekStart).getTime() &&
+      new Date(eventEl.start).getTime() <
         shmoment(weekStart).add('days', 7).result().getTime()
   );
 
   weekEventsList.forEach(eventEl => {
     const eventCell = document
-      .querySelector(`.calendar__day[data-time = '${eventEl.start.getDate()}']`)
       .querySelector(
-        `.calendar__time-slot[data-time = '${eventEl.start.getHours()}']`
+        `.calendar__day[data-time = '${new Date(eventEl.start).getDate()}']`
+      )
+      .querySelector(
+        `.calendar__time-slot[data-time = '${new Date(
+          eventEl.start
+        ).getHours()}']`
       );
     eventCell.append(createEventElement(eventEl));
   });
@@ -121,12 +128,14 @@ const onChangeEvent = () => {
   const eventInArr = getItem('events').find(
     el => el.id === +getItem('eventIdToDelete')
   );
-  const eventDate = eventInArr.start.toDateString();
+  const eventDate = new Date(eventInArr.start).toDateString();
+  const eventObj = Object.fromEntries(new FormData(changeEventForm));
 
-  eventInArr.startTime = startTimeEl.value;
-  eventInArr.endTime = endTimeEl.value;
-  eventInArr.title = titleEl.value;
-  eventInArr.description = descriptionEl.value;
+  eventInArr.startTime = eventObj.startTime;
+  eventInArr.endTime = eventObj.endTime;
+  eventInArr.color = eventObj.color;
+  eventInArr.title = eventObj.title;
+  eventInArr.description = eventObj.description;
   eventInArr.start = getDateTime(eventDate, eventInArr.startTime);
   eventInArr.end = getDateTime(eventDate, eventInArr.endTime);
 

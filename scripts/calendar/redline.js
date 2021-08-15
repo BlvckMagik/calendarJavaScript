@@ -14,9 +14,10 @@ const createRedlineEl = minutesNow => {
 export const renderRedline = () => {
   // вставить createRedlineEl() в необходимый день и час
 
+  const weekStartDate = new Date(getItem('displayedWeekStart'));
   if (
-    todayDate.getMonth() !== getItem('displayedWeekStart').getMonth() ||
-    todayDate.getFullYear() !== getItem('displayedWeekStart').getFullYear()
+    todayDate.getMonth() !== weekStartDate.getMonth() ||
+    todayDate.getFullYear() !== weekStartDate.getFullYear()
   ) {
     return null;
   }

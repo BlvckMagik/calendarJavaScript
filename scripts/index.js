@@ -18,3 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initEventForm();
   renderRedline();
 });
+
+window.addEventListener('storage', () => {
+  renderTimescale();
+  renderWeek();
+  renderHeader();
+  renderRedline();
+});

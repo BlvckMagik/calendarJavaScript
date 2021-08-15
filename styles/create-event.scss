@@ -1,1 +1,6 @@
-// стили формы события внутри модального окна
+.event-form {
+  &__container {
+    display: flex;
+    align-items: center;
+  }
+}

@@ -1,5 +1,5 @@
 /* eslint-disable import/extensions */
-import { getItem } from '../common/storage.js';
+import { getItem, setItem } from '../common/storage.js';
 import { renderEvents } from './events.js';
 import { getDateTime } from '../common/time.utils.js';
 import { closeModal } from '../common/modal.js';
@@ -31,10 +31,10 @@ function onCreateEvent(event) {
   // закрываем форму
   // и запускаем перерисовку событий с помощью renderEvents
 
+  const eventsArr = getItem('events') || [];
   event.preventDefault();
   const eventObj = Object.fromEntries(new FormData(eventFormElem));
-  console.log(eventObj);
-  getItem('events').push({
+  eventsArr.push({
     id: Math.random(),
     title: eventObj.title,
     description: eventObj.description,
@@ -42,7 +42,9 @@ function onCreateEvent(event) {
     end: getDateTime(eventObj.date, eventObj.endTime),
     startTime: eventObj.startTime,
     endTime: eventObj.endTime,
+    color: eventObj.color,
   });
+  setItem('events', eventsArr);
   onCloseEventForm();
   renderEvents();
 }

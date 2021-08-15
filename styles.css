@@ -162,6 +162,11 @@
   background-color: white;
 }
 
+.event-form__container {
+  display: flex;
+  align-items: center;
+}
+
 .event {
   position: absolute;
   display: flex;
@@ -170,7 +175,6 @@
   width: 130px;
   left: 7px;
   z-index: 2;
-  background-color: #5733d8;
   color: aliceblue;
   border-radius: 5px;
 }
