@@ -1,8 +1,11 @@
+/* eslint-disable no-alert */
+/* eslint-disable no-new */
 /* eslint-disable import/extensions */
-import { getItem, setItem } from '../common/storage.js';
+
 import { renderEvents } from './events.js';
 import { getDateTime } from '../common/time.utils.js';
 import { closeModal } from '../common/modal.js';
+import { createEvent } from '../common/eventsGateway.js';
 
 const eventFormElem = document.querySelector('.event-form');
 const closeEventFormBtn = document.querySelector('.create-event__close-btn');
@@ -31,10 +34,9 @@ function onCreateEvent(event) {
   // закрываем форму
   // и запускаем перерисовку событий с помощью renderEvents
 
-  const eventsArr = getItem('events') || [];
   event.preventDefault();
   const eventObj = Object.fromEntries(new FormData(eventFormElem));
-  eventsArr.push({
+  createEvent({
     id: Math.random(),
     title: eventObj.title,
     description: eventObj.description,
@@ -43,10 +45,13 @@ function onCreateEvent(event) {
     startTime: eventObj.startTime,
     endTime: eventObj.endTime,
     color: eventObj.color,
-  });
-  setItem('events', eventsArr);
+  })
+    .then(() => renderEvents())
+    .catch(() => {
+      new Error('Internal Server Error');
+      alert('Internal Server Error');
+    });
   onCloseEventForm();
-  renderEvents();
 }
 
 export function initEventForm() {

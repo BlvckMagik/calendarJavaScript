@@ -1,10 +1,18 @@
+/* eslint-disable no-alert */
+/* eslint-disable import/no-cycle */
+/* eslint-disable no-new */
 /* eslint-disable import/extensions */
-/* eslint-disable no-unused-vars */
+
 import { getItem, setItem } from '../common/storage.js';
 import shmoment from '../common/shmoment.js';
 import { openPopup, closePopup } from '../common/popup.js';
 import { renderWeek } from '../calendar/calendar.js';
 import { getDateTime } from '../common/time.utils.js';
+import {
+  deleteEvent,
+  getEvents,
+  updateEvent,
+} from '../common/eventsGateway.js';
 
 const weekElem = document.querySelector('.calendar__week');
 const deleteEventBtn = document.querySelector('.delete-event-btn');
@@ -34,15 +42,22 @@ function handleEventClick(event) {
 
   openPopup(x, y);
   setItem('eventIdToDelete', event.target.closest('.event').dataset.id);
-  const eventInArr = getItem('events').find(
-    el => el.id === +event.target.closest('.event').dataset.id
-  );
+  getEvents()
+    .then(events => {
+      const eventInArr = events.find(
+        el => el.id === event.target.closest('.event').dataset.id
+      );
 
-  startTimeEl.value = `${eventInArr.startTime}`;
-  endTimeEl.value = `${eventInArr.endTime}`;
-  titleEl.value = `${eventInArr.title}`;
-  descriptionEl.value = `${eventInArr.description}`;
-  popupColorInp.value = `${eventInArr.color}`;
+      startTimeEl.value = `${eventInArr.startTime}`;
+      endTimeEl.value = `${eventInArr.endTime}`;
+      titleEl.value = `${eventInArr.title}`;
+      descriptionEl.value = `${eventInArr.description}`;
+      popupColorInp.value = `${eventInArr.color}`;
+    })
+    .catch(() => {
+      new Error('Internal Server Error');
+      alert('Internal Server Error');
+    });
 }
 
 function removeEventsFromCalendar() {
@@ -81,27 +96,33 @@ export const renderEvents = () => {
   // каждый день и временная ячейка должно содержать дата атрибуты, по которым можно будет найти нужную временную ячейку для события
   // не забудьте удалить с календаря старые события перед добавлением новых
 
-  const events = getItem('events') || [];
   const weekStart = getItem('displayedWeekStart');
-  const weekEventsList = events.filter(
-    eventEl =>
-      new Date(eventEl.start).getTime() > new Date(weekStart).getTime() &&
-      new Date(eventEl.start).getTime() <
-        shmoment(weekStart).add('days', 7).result().getTime()
-  );
-
-  weekEventsList.forEach(eventEl => {
-    const eventCell = document
-      .querySelector(
-        `.calendar__day[data-time = '${new Date(eventEl.start).getDate()}']`
-      )
-      .querySelector(
-        `.calendar__time-slot[data-time = '${new Date(
-          eventEl.start
-        ).getHours()}']`
+  getEvents()
+    .then(events => {
+      const weekEventsList = events.filter(
+        eventEl =>
+          new Date(eventEl.start).getTime() > new Date(weekStart).getTime() &&
+          new Date(eventEl.start).getTime() <
+            shmoment(weekStart).add('days', 7).result().getTime()
       );
-    eventCell.append(createEventElement(eventEl));
-  });
+
+      weekEventsList.forEach(eventEl => {
+        const eventCell = document
+          .querySelector(
+            `.calendar__day[data-time = '${new Date(eventEl.start).getDate()}']`
+          )
+          .querySelector(
+            `.calendar__time-slot[data-time = '${new Date(
+              eventEl.start
+            ).getHours()}']`
+          );
+        eventCell.append(createEventElement(eventEl));
+      });
+    })
+    .catch(() => {
+      new Error('Internal Server Error');
+      alert('Internal Server Error');
+    });
 };
 
 function onDeleteEvent() {
@@ -110,46 +131,47 @@ function onDeleteEvent() {
   // закрыть попап
   // перерисовать события на странице в соответствии с новым списком событий в storage (renderEvents)
 
-  const eventsList = getItem('events');
   const eventIdToDelete = getItem('eventIdToDelete');
+  deleteEvent(eventIdToDelete)
+    .then(() => {
+      document.querySelector(
+        `.event[data-id = '${eventIdToDelete}']`
+      ).parentElement.innerHTML = '';
 
-  const newEventsList = eventsList.filter(({ id }) => +id !== +eventIdToDelete);
-  setItem('events', newEventsList);
-
-  document.querySelector(
-    `.event[data-id = '${eventIdToDelete}']`
-  ).parentElement.innerHTML = '';
+      renderEvents();
+    })
+    .catch(() => {
+      new Error('Internal Server Error');
+      alert('Internal Server Error');
+    });
 
   closePopup();
-  renderEvents();
 }
 
 const onChangeEvent = () => {
-  const eventInArr = getItem('events').find(
-    el => el.id === +getItem('eventIdToDelete')
-  );
-  const eventDate = new Date(eventInArr.start).toDateString();
-  const eventObj = Object.fromEntries(new FormData(changeEventForm));
+  getEvents()
+    .then(events => {
+      const eventInArr = events.find(
+        el => el.id === getItem('eventIdToDelete')
+      );
 
-  eventInArr.startTime = eventObj.startTime;
-  eventInArr.endTime = eventObj.endTime;
-  eventInArr.color = eventObj.color;
-  eventInArr.title = eventObj.title;
-  eventInArr.description = eventObj.description;
-  eventInArr.start = getDateTime(eventDate, eventInArr.startTime);
-  eventInArr.end = getDateTime(eventDate, eventInArr.endTime);
+      const eventDate = new Date(eventInArr.start).toDateString();
+      const eventObj = Object.fromEntries(new FormData(changeEventForm));
 
-  const newEventsList = getItem('events').filter(
-    ({ id }) => +id !== +getItem('eventIdToDelete')
-  );
+      eventObj.start = getDateTime(eventDate, eventInArr.startTime);
+      eventObj.end = getDateTime(eventDate, eventInArr.endTime);
 
-  document.querySelector(
-    `.event[data-id = '${getItem('eventIdToDelete')}']`
-  ).parentElement.innerHTML = '';
-
-  newEventsList.push(eventInArr);
-  setItem('events', newEventsList);
-  renderEvents();
+      updateEvent(eventObj, eventInArr.id).then(() => {
+        document.querySelector(
+          `.event[data-id = '${getItem('eventIdToDelete')}']`
+        ).parentElement.innerHTML = '';
+        renderEvents();
+      });
+    })
+    .catch(() => {
+      new Error('Internal Server Error');
+      alert('Internal Server Error');
+    });
   closePopup();
 };
 
