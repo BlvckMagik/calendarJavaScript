@@ -1,1 +1,1 @@
-The site is available at https://kind-varahamihira-d980cd.netlify.app
+The site is available at https://blvckmagik.github.io/calendarJavaScript/
