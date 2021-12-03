@@ -75,6 +75,8 @@ const createEventElement = event => {
   const eventBlock = document.createElement('div');
   eventBlock.classList.add('event');
   eventBlock.dataset.id = event.id;
+  eventBlock.dataset.start = event.start;
+  eventBlock.dataset.end = event.end;
   eventBlock.innerHTML = `<span class="event__title">${event.title}</span>
   <span class="event__time">${event.startTime} - ${event.endTime}</span>`;
   eventBlock.setAttribute(
@@ -149,24 +151,22 @@ function onDeleteEvent() {
 }
 
 const onChangeEvent = () => {
-  getEvents()
-    .then(events => {
-      const eventInArr = events.find(
-        el => el.id === getItem('eventIdToDelete')
-      );
+  const eventEl = document.querySelector(
+    `.event[data-id = '${getItem('eventIdToDelete')}']`
+  );
 
-      const eventDate = new Date(eventInArr.start).toDateString();
-      const eventObj = Object.fromEntries(new FormData(changeEventForm));
+  const eventDate = new Date(eventEl.dataset.start).toDateString();
+  const eventObj = Object.fromEntries(new FormData(changeEventForm));
 
-      eventObj.start = getDateTime(eventDate, eventInArr.startTime);
-      eventObj.end = getDateTime(eventDate, eventInArr.endTime);
+  eventObj.start = new Date(getDateTime(eventDate, eventObj.startTime));
+  eventObj.end = new Date(getDateTime(eventDate, eventObj.endTime));
 
-      updateEvent(eventObj, eventInArr.id).then(() => {
-        document.querySelector(
-          `.event[data-id = '${getItem('eventIdToDelete')}']`
-        ).parentElement.innerHTML = '';
-        renderEvents();
-      });
+  updateEvent(eventObj, getItem('eventIdToDelete'))
+    .then(() => {
+      document.querySelector(
+        `.event[data-id = '${getItem('eventIdToDelete')}']`
+      ).parentElement.innerHTML = '';
+      renderEvents();
     })
     .catch(() => {
       new Error('Internal Server Error');

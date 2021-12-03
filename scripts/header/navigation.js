@@ -6,7 +6,9 @@ import { renderHeader } from '../calendar/header.js';
 import shmoment from '../common/shmoment.js';
 import { getStartOfWeek, getDisplayedMonth } from '../common/time.utils.js';
 
-const navElem = document.querySelector('.navigation');
+const prevWeekBtn = document.querySelector('[data-direction="prev"]');
+const nextWeekBtn = document.querySelector('[data-direction="next"]');
+const todayBtn = document.querySelector('[data-direction="today"]');
 const displayedMonthElem = document.querySelector(
   '.navigation__displayed-month'
 );
@@ -20,37 +22,37 @@ function renderCurrentMonth() {
   );
 }
 
-const onChangeWeek = event => {
-  // при переключении недели обновите displayedWeekStart в storage
-  // и перерисуйте все необходимые элементы страницы (renderHeader, renderWeek, renderCurrentMonth)
-  if (!event.target.closest('button')) {
-    return null;
-  }
-
-  if (event.target.closest('button').dataset.direction === 'next') {
-    setItem(
-      'displayedWeekStart',
-      shmoment(getItem('displayedWeekStart')).add('days', 7).result()
-    );
-  }
-
-  if (event.target.closest('button').dataset.direction === 'prev') {
-    setItem(
-      'displayedWeekStart',
-      shmoment(getItem('displayedWeekStart')).subtract('days', 7).result()
-    );
-  }
-
-  if (event.target.closest('button').dataset.direction === 'today') {
-    setItem('displayedWeekStart', getStartOfWeek(new Date()));
-  }
+const render = () => {
   renderHeader();
   renderWeek();
   renderCurrentMonth();
   renderRedline();
 };
 
+const handlePrevWeekBtn = () => {
+  setItem(
+    'displayedWeekStart',
+    shmoment(getItem('displayedWeekStart')).subtract('days', 7).result()
+  );
+  render();
+};
+
+const handleNextWeekBtn = () => {
+  setItem(
+    'displayedWeekStart',
+    shmoment(getItem('displayedWeekStart')).add('days', 7).result()
+  );
+  render();
+};
+
+const handleTodayBtn = () => {
+  setItem('displayedWeekStart', getStartOfWeek(new Date()));
+  render();
+};
+
 export const initNavigation = () => {
   renderCurrentMonth();
-  navElem.addEventListener('click', onChangeWeek);
+  prevWeekBtn.addEventListener('click', handlePrevWeekBtn);
+  nextWeekBtn.addEventListener('click', handleNextWeekBtn);
+  todayBtn.addEventListener('click', handleTodayBtn);
 };

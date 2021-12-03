@@ -12,7 +12,7 @@ export const generateDay = () => {
 
   let innerString = '';
   const timeArr = createNumbersArray(0, 23);
-  timeArr.forEach(hour => {
+  timeArr.map(hour => {
     innerString += `<div class="calendar__time-slot" data-time="${hour}"></div>`;
   });
   return innerString;
@@ -27,7 +27,7 @@ export const renderWeek = () => {
 
   let innerString = '';
   const weekRange = generateWeekRange(getItem('displayedWeekStart'));
-  weekRange.forEach(el => {
+  weekRange.map(el => {
     innerString += `<div class="calendar__day" data-time="${new Date(
       el
     ).getDate()}">${generateDay()}</div>`;
